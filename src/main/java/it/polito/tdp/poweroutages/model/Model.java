@@ -37,33 +37,48 @@ public class Model {
 	
 	public void permuta(List<Poweroutage> parziale, Integer livello, Integer indiceAttuale, Integer sommaClienti, Double sommaOre, Integer maxOre, Integer maxAnni, List<Poweroutage> powerList) {
 		
+		System.out.println("Livello: "+livello);
+		System.out.println("IndiceAttuale: "+indiceAttuale);
+		//System.out.println(powerList.get(indiceAttuale));
+		
 		//condizione di terminazione
-		if(parziale.size()>0) {
-			if((sommaOre+powerList.get(indiceAttuale-1).getHours())>maxOre || (parziale.get(0).getYear()-powerList.get(indiceAttuale-1).getYear())>maxAnni || livello==powerList.size()) {
+		if(indiceAttuale==(powerList.size())) {
+			permuta(new ArrayList<Poweroutage>(), livello+1, livello+1, 0, 0.0, maxOre, maxAnni, powerList);
+		}
+		
+		if(parziale.size()>0 && 
+		  (livello==powerList.size() ||
+		  (sommaOre+powerList.get(indiceAttuale).getHours())>maxOre ||
+		  (parziale.get(0).getYear()-powerList.get(indiceAttuale).getYear())>maxAnni)) {
 				if(sommaClienti>sommaClientiMigliore) {
 					sommaClientiMigliore=sommaClienti;
 					soluzioneMigliore=new ArrayList<Poweroutage>(parziale);
 					return;
 				}
-			}
 		}
 		
 		
-		for(int i=indiceAttuale; i<powerList.size();i++) {
+		else {
+			for(int i=indiceAttuale; i<powerList.size();i++) {
 				parziale.add(powerList.get(i));
 				sommaClienti=sommaClienti+powerList.get(i).getCustomers_affected();
 				sommaOre=sommaOre+powerList.get(i).getHours();
+				
 				
 				permuta(parziale,livello,i+1,sommaClienti,sommaOre,maxOre,maxAnni,powerList);
 				
 				parziale.remove(powerList.get(i));
 				sommaClienti=sommaClienti-powerList.get(i).getCustomers_affected();
 				sommaOre=sommaOre-powerList.get(i).getHours();
+			}
 		}
 		
-		if(indiceAttuale==(powerList.size())) {
-			permuta(new ArrayList<Poweroutage>(), livello+1, livello+1, 0, 0.0, maxOre, maxAnni, powerList);
-		}
+		
+		
+		
+		
+		
+		
 			
 		
 	}

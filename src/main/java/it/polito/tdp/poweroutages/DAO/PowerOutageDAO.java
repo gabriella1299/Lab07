@@ -38,10 +38,10 @@ public class PowerOutageDAO {
 	
 	public List<Poweroutage> getPowerList(Integer nerc_id) {
 		
-		String sql="SELECT id,nerc_id,customers_affected,year(date_event_finished) AS year, (timestampdiff(minute,date_event_began,date_event_finished))/60 AS hours "
+		String sql="SELECT id,nerc_id,customers_affected,year(date_event_finished) AS year, (timestampdiff(minute,date_event_began,date_event_finished))/60 AS hours,date_event_began,date_event_finished "
 				+ "FROM poweroutages "
 				+ "WHERE nerc_id=? "
-				+ "ORDER BY YEAR DESC";
+				+ "ORDER BY YEAR ASC";
 		List<Poweroutage> powerList = new ArrayList<>();
 
 		try {
@@ -51,7 +51,7 @@ public class PowerOutageDAO {
 			ResultSet res = st.executeQuery();
 			
 			while (res.next()) {
-				Poweroutage p = new Poweroutage(res.getInt("id"), res.getInt("nerc_id"), res.getInt("customers_affected"), res.getInt("year"), res.getDouble("hours"));
+				Poweroutage p = new Poweroutage(res.getInt("id"), res.getInt("nerc_id"), res.getInt("customers_affected"), res.getInt("year"), res.getDouble("hours"), res.getString("date_event_began"),res.getString("date_event_finished"));
 				powerList.add(p);
 			}
 

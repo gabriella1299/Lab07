@@ -5,9 +5,11 @@
 package it.polito.tdp.poweroutages;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import it.polito.tdp.poweroutages.model.Model;
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.Poweroutage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -38,8 +40,47 @@ public class FXMLController {
     
     @FXML
     void doRun(ActionEvent event) {
-    	txtResult.clear();
-    }
+    	txtResult.clear();    	
+    	
+    	try {
+    		
+    		Nerc selectedNerc = cmbNerc.getSelectionModel().getSelectedItem();
+			if (selectedNerc == null) {
+				txtResult.setText("Selezionare un NERC (area identifier)!");
+				return;
+			}
+			
+    		int ore=Integer.parseInt(txtHours.getText());
+    		int anni=Integer.parseInt(txtYears.getText());
+    		
+    		if(ore<=0 || anni<=0) {
+    			txtResult.setText("Inserire un numero maggiore di zero per ore e anni!");
+				return;
+    		}
+    		
+        	List<Poweroutage> power=this.model.trovaSequenza(cmbNerc.getValue().getId(), ore, anni);
+    		
+    		txtResult.clear();
+			txtResult.appendText("Tot people affected: " + this.model.sommaClienti(power) + "\n");
+			txtResult.appendText("Tot hours of outage: " + this.model.sommaOre(power) + "\n");
+    		
+        	
+    		for(Poweroutage p:power) {
+    			//txtResult.appendText(p.toString()+"\n");
+    			
+    			txtResult.appendText(String.format("%d %s %s %f %d", p.getYear(), p.getStart(),p.getEnd(),p.getHours(),p.getCustomers_affected()));
+    			txtResult.appendText("\n");
+    			 
+    		}
+        	
+    	}catch(NumberFormatException nfe) {
+    		txtResult.setText("Inserire ore e anni in un formato valido!");
+    		return;
+    	} catch(NullPointerException npe) { 
+    		txtResult.setText("Riempire tutti i campi!");
+    		return;
+    	}
+     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
@@ -54,5 +95,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	cmbNerc.getItems().addAll(model.getNercList());
     }
 }
